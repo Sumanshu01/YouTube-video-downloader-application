@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Downloader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .video-info {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .video-info img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .video-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .video-info p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Footer Styles */
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .footer a:hover {
+            color: #ffd700;
+            text-decoration: underline;
+        }
+
+        .footer .heart {
+            color: #ff6b6b;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📹 YouTube Downloader</h1>
+        
+        <div class="input-group">
+            <label for="videoUrl">Video URL:</label>
+            <input type="text" id="videoUrl" placeholder="Paste YouTube URL here...">
+        </div>
+
+        <div class="input-group">
+            <label for="quality">Quality:</label>
+            <select id="quality">
+                <option value="best">Best Quality</option>
+                <option value="worst">Lowest Quality</option>
+            </select>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-secondary" onclick="getVideoInfo()">Get Info</button>
+            <button class="btn-primary" onclick="downloadVideo()">Download</button>
+        </div>
+
+        <div class="loader" id="loader"></div>
+
+        <div class="video-info" id="videoInfo"></div>
+
+        <div class="message" id="message"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        Developed with <span class="heart">♥</span> by <strong>Sumanshu Jindal</strong>
+    </div>
+
+    <script>
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 5000);
+        }
+
+        function showLoader(show) {
+            document.getElementById('loader').style.display = show ? 'block' : 'none';
+        }
+
+        async function getVideoInfo() {
+            const url = document.getElementById('videoUrl').value;
+            
+            if (!url) {
+                showMessage('Please enter a YouTube URL', 'error');
+                return;
+            }
+
+            showLoader(true);
+
+            try {
+                const response = await fetch('/get-info', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                } else {
+                    const videoInfo = document.getElementById('videoInfo');
+                    const duration = Math.floor(data.duration / 60) + ':' + (data.duration % 60).toString().padStart(2, '0');
+                    
+                    videoInfo.innerHTML = `
+                        <img src="${data.thumbnail}" alt="Thumbnail">
+                        <h3>${data.title}</h3>
+                        <p><strong>Uploader:</strong> ${data.uploader}</p>
+                        <p><strong>Duration:</strong> ${duration}</p>
+                    `;
+                    videoInfo.style.display = 'block';
+                }
+            } catch (error) {
+                showMessage('Error fetching video info: ' + error.message, 'error');
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        async function downloadVideo() {
+            const url = document.getElementById('videoUrl').value;
+            const quality = document.getElementById('quality').value;
+
+            if (!url) {
+                showMessage('Please enter a YouTube URL', 'error');
+                return;
+            }
+
+            showLoader(true);
+            showMessage('Downloading... This may take a while.', 'success');
+
+            try {
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        url: url,
+                        quality: quality
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                } else {
+                    showMessage('Download completed! File: ' + data.title, 'success');
+                    // Trigger file download
+                    window.location.href = `/download-file/${data.filename}`;
+                }
+            } catch (error) {
+                showMessage('Error downloading video: ' + error.message, 'error');
+            } finally {
+                showLoader(false);
+            }
+        }
+    </script>
+</body>
+</html>
