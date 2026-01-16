@@ -1,4 +1,4 @@
-# YouTube Downloader
+# YouTube Video Downloader Application
 
 A simple web-based YouTube video downloader application built with Flask and yt-dlp.
 
